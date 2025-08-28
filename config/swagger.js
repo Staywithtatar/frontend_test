@@ -18,7 +18,7 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:5000',
+        url: 'https://frontendtest-production-2019.up.railway.app',
         description: 'Development server'
       },
       {
