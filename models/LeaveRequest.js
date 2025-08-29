@@ -85,6 +85,12 @@ class LeaveRequest {
       paramCount++;
     }
 
+    if (filters.shift_assignment_id) {
+      conditions.push(`lr.shift_assignment_id = $${paramCount}`);
+      values.push(filters.shift_assignment_id);
+      paramCount++;
+    }
+
     if (conditions.length > 0) {
       query += ` WHERE ${conditions.join(' AND ')}`;
     }
@@ -170,6 +176,26 @@ class LeaveRequest {
     `;
     
     const result = await pool.query(query, [startDate, endDate]);
+    return result.rows;
+  }
+
+  static async findByShiftAssignmentId(shiftAssignmentId) {
+    const query = `
+      SELECT lr.*, 
+             sa.user_id, sa.shift_id, sa.status as assignment_status,
+             u.name as requested_by_name,
+             s.date, s.start_time, s.end_time, s.shift_type, s.department,
+             a.name as approved_by_name
+      FROM leave_requests lr
+      JOIN shift_assignments sa ON lr.shift_assignment_id = sa.id
+      JOIN users u ON lr.requested_by = u.id
+      JOIN shifts s ON sa.shift_id = s.id
+      LEFT JOIN users a ON lr.approved_by = a.id
+      WHERE lr.shift_assignment_id = $1
+      ORDER BY lr.request_date DESC
+    `;
+    
+    const result = await pool.query(query, [shiftAssignmentId]);
     return result.rows;
   }
 }

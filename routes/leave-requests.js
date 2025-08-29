@@ -125,9 +125,7 @@ router.post('/', authenticateToken, requireRole(['nurse']), async (req, res) => 
     }
 
     // Check if there's already a pending or approved leave request for this assignment
-    const existingRequests = await LeaveRequest.findAll({
-      shift_assignment_id
-    });
+    const existingRequests = await LeaveRequest.findByShiftAssignmentId(shift_assignment_id);
 
     const hasActiveRequest = existingRequests.some(request => 
       request.status === 'pending' || request.status === 'approved'
